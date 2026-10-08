@@ -46,6 +46,20 @@ td.mono{font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;font-si
 ul.plain{margin:16px 0 0;padding-left:20px} ul.plain li+li{margin-top:8px}
 .review{background:var(--lavender);border-radius:16px;padding:clamp(22px,3vw,34px)}
 footer{background:var(--black);color:rgba(255,255,255,.6);font-size:.85rem;padding:32px 0 calc(40px + env(safe-area-inset-bottom,0px))}
+
+.finding{border-top:1px solid var(--black);padding:22px 0}
+.finding+.finding{border-top-color:#DADADA}
+.finding h3{font-size:1.3rem;font-weight:600;font-stretch:106%;line-height:1.15}
+.finding p{margin-top:10px;max-width:68ch}
+.finding .src{font-size:.78rem;letter-spacing:.06em;text-transform:uppercase;font-weight:600;color:var(--muted)}
+.finding .matters{background:var(--grey);border-radius:12px;padding:14px 18px;font-size:.95rem}
+ol.steps{margin:0;padding-left:22px;max-width:68ch}
+ol.steps li{padding:10px 0;border-bottom:1px solid #E2E2E2}
+ol.steps li:last-child{border-bottom:0}
+ol.refs{margin:0;padding-left:22px;max-width:76ch;font-size:.93rem}
+ol.refs li{padding:9px 0;border-bottom:1px solid #E2E2E2}
+ol.refs li:last-child{border-bottom:0}
+.sub-note{display:block;margin-top:6px;font-size:.8rem;font-weight:400;color:var(--muted)}
 </style>
 </head>
 <body>
@@ -71,121 +85,138 @@ footer{background:var(--black);color:rgba(255,255,255,.6);font-size:.85rem;paddi
 <script type="application/json" id="report-data">
 {
   "phase": 1,
-  "title": "KRAS G12D: structure and molecular dynamics",
+  "title": "KRAS G12D: what the published research already shows",
+  "kind": "Literature review and protocol",
   "status": "Completed",
   "period": { "start": "", "end": "" },
 
-  "summary": "",
+  "summary": "Phase 1 is groundwork, not simulation. Before spending GPU hours on KRAS G12D, we read what has already been published about it: how the mutation changes the protein, which structures exist to start from, and what has already been tried against it.\n\nThe short version: KRAS G12D is the most common KRAS mutation in cancer. The mutation leaves the protein stuck in its active state, and for decades its surface was considered too smooth to drug. That changed in 2021 and 2022, when a pocket near switch II was used to build MRTX1133, a compound that binds KRAS G12D very tightly and shrank tumours in mice. Separately, molecular dynamics studies showed exactly which parts of the protein move differently after the mutation, especially switch II.\n\nThose two findings set up our own work. There are high-resolution crystal structures to start from, a known pocket worth watching, and published simulation results we can check our own runs against. Phase 2 runs the simulations.",
 
   "target": {
     "name": "KRAS G12D",
     "uniprot": "P01116",
-    "why": "KRAS is one of the most frequently mutated genes in human cancer, and the G12D variant is especially common in pancreatic cancer. It has long been considered very hard to drug because its surface offers few obvious pockets for a small molecule to bind."
+    "gene": "KRAS",
+    "why": "KRAS is the most frequently mutated oncoprotein in human cancer. Position 12 accounts for the large majority of its cancer mutations, and glycine-to-aspartate (G12D) is the single most common of them. The swap puts a bulkier, negatively charged side chain into the active site, which blocks the protein from switching itself off. Stuck in its active state, it keeps signalling for cells to grow."
   },
+
+  "regions": [
+    { "name": "P-loop", "residues": "10–17", "role": "Holds the phosphate groups of the bound nucleotide. Residue 12, the mutated position, sits here." },
+    { "name": "Switch I", "residues": "25–40", "role": "Moves between shapes depending on which nucleotide is bound, and controls binding to partner proteins." },
+    { "name": "Switch II", "residues": "60–74", "role": "The region most changed by the mutation, and where the pocket used by current inhibitors opens." }
+  ],
+
+  "findings": [
+    {
+      "headline": "The mutation unsettles switch II",
+      "detail": "Microsecond-scale all-atom simulations of wild-type and G12D KRAS, in both the active (GTP-bound) and inactive (GDP-bound) forms, found that the loop residues of switch II fluctuate more in the active mutant. A salt bridge between E63 and R68 that holds switch II together in the active wild-type protein does not form in the active mutant. The mutation also shifts switch II and the α3 helix into a single dominant arrangement rather than the two the wild-type visits.",
+      "source": "Vatansever, Erman & Gümüş (2019)",
+      "why_it_matters": "This tells us which part of the protein to watch in our own runs, and gives us published behaviour to check our simulations against before trusting anything new they show."
+    },
+    {
+      "headline": "The pockets only open sometimes",
+      "detail": "The main binding sites on KRAS, including the switch-2 pocket, are described as cryptic: they are not open in the protein's most common resting shape and appear only briefly as it moves.",
+      "source": "Dynamic conformational equilibria in the active states of KRAS and NRAS (2025)",
+      "why_it_matters": "This is the core reason this project runs simulations instead of docking against a single static structure. A pocket that only exists part of the time is invisible to a still picture."
+    },
+    {
+      "headline": "A hard target turned out to be druggable",
+      "detail": "MRTX1133 was built through repeated rounds of structure-guided design to fill the switch-2 pocket. It binds GDP-loaded KRAS G12D with a reported dissociation constant near 0.2 pM and roughly 700-fold selectivity over wild-type KRAS, and produced tumour shrinkage of 30% or more in a subset of KRAS G12D mouse models, including 8 of 11 pancreatic cancer models.",
+      "source": "Wang et al. (2022); Hallin et al. (2022)",
+      "why_it_matters": "It proves the target is reachable, and gives us a reference compound. Any docking protocol we build should rank MRTX1133 highly against this pocket, or the protocol is wrong."
+    },
+    {
+      "headline": "We know what binding looks like",
+      "detail": "The MRTX1133 work deposited six crystal structures of KRAS G12D with bound compounds, the sharpest at 1.27 Å. A later study found that MRTX1133 binding pushes KRAS G12D fully into its inactive shape and blocks its partner protein from attaching.",
+      "source": "PDB 7RPZ, 7RT1–7RT5; RSC Chem. Biol. (2025)",
+      "why_it_matters": "These give us validated starting structures, and a known binding pose to measure our predicted poses against."
+    }
+  ],
+
+  "structures": [
+    { "pdb": "7RT1", "resolution": "1.27 Å", "method": "X-ray diffraction", "contents": "KRAS G12D with GDP, magnesium and an inhibitor from the MRTX1133 series", "use": "Primary starting structure for simulations" },
+    { "pdb": "7RT4", "resolution": "2.10 Å", "method": "X-ray diffraction", "contents": "KRAS G12D with a different compound of the same series", "use": "Comparison of pocket shape across compounds" },
+    { "pdb": "7RPZ, 7RT2, 7RT3, 7RT5", "resolution": "Various", "method": "X-ray diffraction", "contents": "Further KRAS G12D complexes from the same study", "use": "Cross-checking how far the pocket can open" }
+  ],
+
+  "protocol": [
+    { "step": "Starting structure", "plan": "Use the 1.27 Å crystal structure (7RT1) with the bound compound removed, rather than a predicted model, since an experimental structure of this quality already exists." },
+    { "step": "Prediction as a check", "plan": "Also build the structure from sequence and compare it to the crystal structure. If prediction is close here, we have more confidence using it for targets with no crystal structure." },
+    { "step": "Simulation", "plan": "Run replicate all-atom simulations of the GDP-bound protein, long enough to see switch II move, following the published setups that produced the findings above." },
+    { "step": "What we measure", "plan": "Per-residue fluctuations, the E63–R68 salt bridge, and whether the switch-2 pocket opens. These are the quantities earlier studies already reported, so our numbers can be compared to theirs." },
+    { "step": "Docking", "plan": "Screen compounds against several shapes taken from the simulation rather than one. MRTX1133 is included as a positive control; if it does not score well, the protocol gets fixed before any results are published." }
+  ],
 
   "hardware": [
-    { "model": "NVIDIA H100 80GB", "count": 2, "gpu_hours": null }
+    { "model": "NVIDIA H100 80GB", "count": 2, "note": "Online and running Phase 2 simulations" }
   ],
 
-  "software": [
-    { "name": "", "version": "", "role": "Structure prediction" },
-    { "name": "", "version": "", "role": "Molecular dynamics" },
-    { "name": "", "version": "", "role": "Docking" }
-  ],
-
-  "structure": {
-    "method": "",
-    "mean_plddt": null,
-    "notes": ""
-  },
-
-  "md": {
-    "replicas": 2,
-    "ns_per_replica": null,
-    "total_ns": null,
-    "temperature_k": null,
-    "force_field": "",
-    "water_model": "",
-    "findings": ""
-  },
-
-  "docking": {
-    "library": "",
-    "compounds_screened": null,
-    "method": "",
-    "top": []
-  },
-
-  "claude_review": "",
+  "claude_review": "This phase produced no simulation results, and the report should not be read as if it did. What it produced is a decision about where to point the hardware, and that decision is now backed by published work rather than guesswork.\n\nThree things in the literature shaped the plan. The switch-2 pocket is cryptic, so screening against a single static structure would likely miss it; that justifies spending GPU time on dynamics before docking. Earlier simulations already reported specific, checkable numbers for how switch II behaves after the mutation, which gives Phase 2 something to be measured against instead of producing results nobody can verify. And MRTX1133 gives a positive control, which matters more than it sounds: a docking protocol that cannot rank a known picomolar binder near the top is not ready to rank anything else.\n\nThe honest limitation is that KRAS G12D is a crowded field with well-funded teams and a compound already in trials. Finding something genuinely new here is unlikely. It was chosen as the first target because the published record is deep enough to tell quickly whether our pipeline works at all. A pipeline that reproduces known results on a well-studied target is worth more than novel-looking results on one where nothing can be checked.",
 
   "limitations": [
-    "All results come from computer simulations. None of the compounds listed here have been made or tested in a lab.",
-    "Docking scores estimate how well a molecule might bind; they are often wrong and are used to narrow a list, not to prove activity.",
-    "A promising simulation result is an early starting point. Any real drug would still need lab testing, animal studies and clinical trials."
+    "No simulations were run in this phase. Every number in this report comes from previously published work by other researchers, cited alongside each finding.",
+    "KRAS G12D is already the subject of extensive pharmaceutical research, including a compound in clinical trials. This project is not competing with that work.",
+    "Published findings were selected for relevance to the planned protocol. This is not a systematic review of the KRAS literature.",
+    "Nothing here has been tested in a lab by this project. Simulations find candidates, not cures."
   ],
 
-  "downloads": []
+  "sources": [
+    { "cite": "Vatansever, S., Erman, B. & Gümüş, Z. H. (2019). Oncogenic G12D mutation alters local conformations and dynamics of K-Ras. Scientific Reports 9, 11730.", "url": "https://doi.org/10.1038/s41598-019-48029-z" },
+    { "cite": "Wang, X. et al. (2022). Identification of MRTX1133, a Noncovalent, Potent, and Selective KRAS G12D Inhibitor. Journal of Medicinal Chemistry 65(4), 3123–3133.", "url": "https://doi.org/10.1021/acs.jmedchem.1c01688" },
+    { "cite": "Hallin, J. et al. (2022). Anti-tumor efficacy of a potent and selective non-covalent KRAS G12D inhibitor. Nature Medicine 28(10), 2171–2182.", "url": "https://doi.org/10.1038/s41591-022-02007-7" },
+    { "cite": "Dynamic conformational equilibria in the active states of KRAS and NRAS (2025). RSC Chemical Biology.", "url": "https://doi.org/10.1039/d4cb00233d" },
+    { "cite": "Protein Data Bank entry 7RT1: KRAS G12D crystal structure at 1.27 Å.", "url": "https://www.rcsb.org/structure/7RT1" },
+    { "cite": "Qiu, X., Li, H., Ver Steeg, G. & Godzik, A. (2024). Advances in AI for Protein Structure Prediction: Implications for Cancer Drug Discovery and Development. Biomolecules 14(3), 339.", "url": "https://www.mdpi.com/2218-273X/14/3/339" }
+  ]
 }
 </script>
 
 <script>
 const R = JSON.parse(document.getElementById("report-data").textContent);
-const has = v => !(v === null || v === undefined || v === "" || (Array.isArray(v) && !v.length));
 const esc = v => String(v).replace(/[&<>"]/g, c => ({ "&":"&amp;", "<":"&lt;", ">":"&gt;", '"':"&quot;" }[c]));
-const PEND = '<span class="pending">Pending data</span>';
-const val = (v, unit = "") => has(v) ? esc(typeof v === "number" ? v.toLocaleString("en-US") : v) + (unit ? " " + unit : "") : PEND;
-const kv = pairs => `<dl class="kv">${pairs.map(([k, v]) => `<div><dt>${k}</dt><dd>${v}</dd></div>`).join("")}</dl>`;
-const para = t => has(t) ? t.split(/\n\s*\n/).map(p => `<p>${esc(p)}</p>`).join("") : `<p class="empty">${PEND}</p>`;
+const para = t => t.split(/\n\s*\n/).map(p => `<p>${esc(p)}</p>`).join("");
 const section = (label, title, body) => `<section><div class="sec"><p class="tag">${label}</p><div><h2>${title}</h2>${body}</div></div></section>`;
 
 document.title = `Phase ${R.phase} report: ${R.title} — Fold`;
 document.getElementById("r-kicker").textContent = `Phase ${R.phase} report`;
 document.getElementById("r-title").textContent = R.title;
-const dates = has(R.period.start) ? `${R.period.start}${has(R.period.end) ? " to " + R.period.end : ""}` : "";
+const dates = R.period.start ? `${R.period.start}${R.period.end ? " to " + R.period.end : ""}` : "";
 document.getElementById("r-meta").innerHTML =
-  `<span class="chip${/complete/i.test(R.status) ? " done" : ""}">${esc(R.status)}</span>` +
-  (dates ? `<span class="chip">${esc(dates)}</span>` : "") +
-  R.hardware.map(h => `<span class="chip">${h.count} × ${esc(h.model)}</span>`).join("");
+  `<span class="chip done">${esc(R.status)}</span><span class="chip">${esc(R.kind)}</span>` + (dates ? `<span class="chip">${esc(dates)}</span>` : "");
 
-const gpuHours = R.hardware.reduce((a, h) => a + (h.gpu_hours || 0), 0);
 let html = "";
 
 html += section("Summary", "What this phase did", `<div class="prose">${para(R.summary)}</div>`);
 
 html += section("Target", esc(R.target.name), `<div class="prose"><p>${esc(R.target.why)}</p></div>` +
-  kv([["Protein", val(R.target.name)], ["UniProt ID", val(R.target.uniprot)]]));
-
-html += section("Setup", "Hardware and software",
-  kv([["GPUs", R.hardware.map(h => `${h.count} × ${esc(h.model)}`).join("<br>")], ["GPU hours", gpuHours ? gpuHours.toLocaleString("en-US") : PEND]]) +
-  `<div class="scroll"><table><thead><tr><th>Step</th><th>Software</th><th>Version</th></tr></thead><tbody>` +
-  R.software.map(s => `<tr><td>${esc(s.role)}</td><td>${val(s.name)}</td><td>${val(s.version)}</td></tr>`).join("") +
+  `<dl class="kv"><div><dt>Gene</dt><dd>${esc(R.target.gene)}</dd></div><div><dt>UniProt ID</dt><dd>${esc(R.target.uniprot)}</dd></div></dl>` +
+  `<div class="scroll"><table><thead><tr><th>Region</th><th>Residues</th><th>What it does</th></tr></thead><tbody>` +
+  R.regions.map(r => `<tr><td><b>${esc(r.name)}</b></td><td>${esc(r.residues)}</td><td>${esc(r.role)}</td></tr>`).join("") +
   `</tbody></table></div>`);
 
-html += section("Step 1", "Structure prediction",
-  kv([["Method", val(R.structure.method)], ["Mean confidence (pLDDT)", val(R.structure.mean_plddt)]]) +
-  `<div class="prose" style="margin-top:20px">${has(R.structure.notes) ? para(R.structure.notes) : ""}</div>`);
+html += section("Findings", "What the published work shows",
+  R.findings.map(f => `<article class="finding">
+      <h3>${esc(f.headline)}</h3>
+      <p>${esc(f.detail)}</p>
+      <p class="src">${esc(f.source)}</p>
+      <p class="matters"><b>Why it matters here.</b> ${esc(f.why_it_matters)}</p>
+    </article>`).join(""));
 
-html += section("Step 2", "Molecular dynamics",
-  kv([["Replicas", val(R.md.replicas)], ["Per replica", val(R.md.ns_per_replica, "ns")], ["Total simulated", val(R.md.total_ns, "ns")],
-      ["Temperature", val(R.md.temperature_k, "K")], ["Force field", val(R.md.force_field)], ["Water model", val(R.md.water_model)]]) +
-  `<div class="prose" style="margin-top:20px">${para(R.md.findings)}</div>`);
+html += section("Structures", "Starting points we can use",
+  `<div class="scroll"><table><thead><tr><th>PDB</th><th>Resolution</th><th>Method</th><th>Contents</th><th>Use</th></tr></thead><tbody>` +
+  R.structures.map(x => `<tr><td><b>${esc(x.pdb)}</b></td><td>${esc(x.resolution)}</td><td>${esc(x.method)}</td><td>${esc(x.contents)}</td><td>${esc(x.use)}</td></tr>`).join("") +
+  `</tbody></table></div>`);
 
-const topHits = R.docking.top || [];
-html += section("Step 3", "Compound screening",
-  kv([["Library", val(R.docking.library)], ["Compounds screened", val(R.docking.compounds_screened)], ["Method", val(R.docking.method)]]) +
-  (topHits.length
-    ? `<div class="scroll"><table><thead><tr><th>Rank</th><th>Compound</th><th>Score (kcal/mol)</th><th>SMILES</th><th>Notes</th></tr></thead><tbody>` +
-      topHits.map(t => `<tr><td>${val(t.rank)}</td><td>${val(t.id)}</td><td>${val(t.score_kcal_mol)}</td><td class="mono">${val(t.smiles)}</td><td>${has(t.notes) ? esc(t.notes) : ""}</td></tr>`).join("") +
-      `</tbody></table></div>`
-    : `<p class="empty" style="margin-top:20px">Top compounds: ${PEND}</p>`));
+html += section("Protocol", "What Phase 2 will run",
+  `<ol class="steps">` + R.protocol.map(p => `<li><b>${esc(p.step)}.</b> ${esc(p.plan)}</li>`).join("") + `</ol>` +
+  `<dl class="kv">` + R.hardware.map(h => `<div><dt>Hardware</dt><dd>${h.count} × ${esc(h.model)}<span class="sub-note">${esc(h.note)}</span></dd></div>`).join("") + `</dl>`);
 
 html += section("Review", "Claude's review", `<div class="review prose">${para(R.claude_review)}</div>`);
 
-html += section("Limits", "What these results don't show", `<ul class="plain prose">${R.limitations.map(l => `<li>${esc(l)}</li>`).join("")}</ul>`);
+html += section("Limits", "What this report doesn't show",
+  `<ul class="plain prose">${R.limitations.map(l => `<li>${esc(l)}</li>`).join("")}</ul>`);
 
-html += section("Data", "Downloads", has(R.downloads)
-  ? `<ul class="plain">${R.downloads.map(d => `<li><a href="${esc(d.url)}">${esc(d.label)}</a></li>`).join("")}</ul>`
-  : `<p class="empty">${PEND}</p>`);
+html += section("Sources", "References",
+  `<ol class="refs">${R.sources.map(s => `<li><a href="${esc(s.url)}" target="_blank" rel="noopener">${esc(s.cite)}</a></li>`).join("")}</ol>`);
 
 document.getElementById("report").innerHTML = html;
 </script>
