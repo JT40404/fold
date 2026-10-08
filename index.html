@@ -54,7 +54,7 @@ section{position:relative;padding:clamp(80px,11vw,140px) 0}
 .ca-btn{font:600 .78rem var(--font);letter-spacing:.06em;text-transform:uppercase;border-radius:999px;padding:7px 12px;cursor:pointer;white-space:nowrap;text-decoration:none;background:var(--white);color:var(--black);border:0}
 .ca.pending .ca-value{font-family:var(--font);opacity:.7}
 .ca.pending .ca-btn{display:none}
-@media (max-width:520px){#ca-buy{display:none}}
+@media (max-width:520px){.nav-buy{display:none}}
 
 /* Hero */
 .hero{min-height:100svh;background:var(--black);color:var(--white);display:flex;flex-direction:column;justify-content:flex-end;overflow:hidden;padding:calc(120px + env(safe-area-inset-top,0px)) 0 40px}
@@ -165,6 +165,16 @@ footer{background:var(--black);color:var(--white);padding:0 0 calc(40px + env(sa
 .sources p{font-size:.95rem;color:var(--muted)}
 .sources a{color:var(--black)}
 @media (max-width:760px){.findings{grid-template-columns:1fr}}
+
+/* CA panel in the hero */
+.ca-panel{margin-top:36px;display:flex;align-items:center;gap:16px 24px;flex-wrap:wrap;padding:18px 18px 18px 24px;border:1px solid rgba(255,255,255,.22);border-radius:18px;background:rgba(255,255,255,.06);backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px);max-width:860px}
+.ca-panel-label{font-size:.78rem;letter-spacing:.08em;text-transform:uppercase;font-weight:600;color:rgba(255,255,255,.6)}
+.ca-panel-value{flex:1 1 280px;min-width:0;font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;font-size:clamp(.85rem,1.4vw,1.05rem);overflow-wrap:anywhere}
+.ca-panel-btns{display:flex;gap:10px;flex-wrap:wrap}
+.ca-panel.pending .ca-panel-value{font-family:var(--font);color:rgba(255,255,255,.7)}
+.ca-panel.pending .ca-panel-btns{display:none}
+.hero-foot{margin-top:40px}
+.foot-ca{margin-top:36px;color:var(--white)}
 </style>
 </head>
 <body>
@@ -175,11 +185,11 @@ footer{background:var(--black);color:var(--white);padding:0 0 calc(40px + env(sa
     <nav class="nav-links" aria-label="Sections">
       <a href="#how">How it works</a><a href="#live">Live</a><a href="#research">Research</a><a href="#targets">Targets</a><a href="#open">Open science</a><a href="#limits">Limits</a>
     </nav>
-    <div class="ca pending" id="ca">
+    <div class="ca pending" data-ca>
       <span class="ca-label">CA</span>
-      <span class="ca-value" id="ca-value">Launching soon</span>
-      <button class="ca-btn" id="ca-copy" type="button">Copy</button>
-      <a class="ca-btn" id="ca-buy" href="#" target="_blank" rel="noopener">Buy</a>
+      <span class="ca-value" data-ca-value data-short>Launching soon</span>
+      <button class="ca-btn" data-ca-copy type="button">Copy</button>
+      <a class="ca-btn nav-buy" data-ca-buy href="#" target="_blank" rel="noopener">Buy</a>
     </div>
   </div>
 </header>
@@ -192,6 +202,14 @@ footer{background:var(--black);color:var(--white);padding:0 0 calc(40px + env(sa
     <div class="container">
       <h1><span>Trading</span><span>fees</span><span class="pill"><svg id="fold-pill" viewBox="0 0 520 420" preserveAspectRatio="xMidYMid slice" role="img" aria-label="An animated DNA helix that zooms in to a protein chain, which is built and then folds"></svg></span><span>fund</span><span>the</span><span>fold.</span></h1>
       <p class="hero-lede">Every creator fee from <span data-ticker>$FOLD</span> rents cloud GPUs to predict and simulate cancer-related proteins and buys Claude API credit to read and explain the results. Every run is published in the open.</p>
+      <div class="ca-panel pending" data-ca>
+        <span class="ca-panel-label">Contract address</span>
+        <span class="ca-panel-value" data-ca-value>Launching soon</span>
+        <div class="ca-panel-btns">
+          <button class="btn-arrow" data-ca-copy type="button">Copy</button>
+          <a class="btn-arrow ghost" data-ca-buy href="#" target="_blank" rel="noopener">Buy on pump.fun <svg viewBox="0 0 20 20" aria-hidden="true"><path d="M5 15 15 5M7 5h8v8" stroke="currentColor" stroke-width="2" fill="none"/></svg></a>
+        </div>
+      </div>
       <div class="hero-foot">
         <a class="btn-arrow" href="#how">How it works <svg viewBox="0 0 20 20" aria-hidden="true"><path d="M5 15 15 5M7 5h8v8" stroke="currentColor" stroke-width="2" fill="none"/></svg></a>
         <p class="hero-meta"><b id="hero-gpus">2 × H100</b> online &nbsp;/&nbsp; Target <b id="cur-target">—</b> &nbsp;/&nbsp; <b id="fold-state">Reading the DNA</b></p>
@@ -353,6 +371,11 @@ footer{background:var(--black);color:var(--white);padding:0 0 calc(40px + env(sa
         <a href="#research">Research</a><a href="#limits">Limits</a>
       </nav>
     </div>
+    <div class="ca foot-ca pending" data-ca>
+      <span class="ca-label">CA</span>
+      <span class="ca-value" data-ca-value>Launching soon</span>
+      <button class="ca-btn" data-ca-copy type="button">Copy</button>
+    </div>
     <div class="foot-note"><span>Not medical advice and not a financial product. Results are research data and have not been tested in a lab.</span><span>© 2026 Fold</span></div>
   </div>
 </footer>
@@ -388,18 +411,23 @@ const nav = document.getElementById("nav");
 const onScroll = () => nav.classList.toggle("solid", scrollY > 40);
 addEventListener("scroll", onScroll, { passive: true }); onScroll();
 
-/* Contract address */
+/* Contract address: fills every block marked data-ca */
 (function(){
   const ca = FOLD.ca.trim(); if (!ca) return;
-  const box = document.getElementById("ca"), val = document.getElementById("ca-value"), copy = document.getElementById("ca-copy");
   const short = ca.length > 14 ? ca.slice(0, 5) + "…" + ca.slice(-5) : ca;
-  box.classList.remove("pending"); val.textContent = short; val.title = ca;
-  document.getElementById("ca-buy").href = "https://pump.fun/coin/" + encodeURIComponent(ca);
-  copy.addEventListener("click", async () => {
-    try { await navigator.clipboard.writeText(ca); copy.textContent = "Copied"; }
-    catch { val.textContent = ca; const r = document.createRange(); r.selectNodeContents(val);
-            getSelection().removeAllRanges(); getSelection().addRange(r); copy.textContent = "Ctrl+C"; }
-    setTimeout(() => { copy.textContent = "Copy"; val.textContent = short; }, 1800);
+  document.querySelectorAll("[data-ca]").forEach(box => {
+    box.classList.remove("pending");
+    const val = box.querySelector("[data-ca-value]"), copy = box.querySelector("[data-ca-copy]"), buy = box.querySelector("[data-ca-buy]");
+    const shown = val.hasAttribute("data-short") ? short : ca;
+    val.textContent = shown; val.title = ca;
+    if (buy) buy.href = "https://pump.fun/coin/" + encodeURIComponent(ca);
+    if (copy) copy.addEventListener("click", async () => {
+      const label = copy.firstChild;
+      try { await navigator.clipboard.writeText(ca); label.textContent = "Copied"; }
+      catch { val.textContent = ca; const r = document.createRange(); r.selectNodeContents(val);
+              getSelection().removeAllRanges(); getSelection().addRange(r); label.textContent = "Press Ctrl+C"; }
+      setTimeout(() => { label.textContent = "Copy"; val.textContent = shown; }, 1800);
+    });
   });
 })();
 
