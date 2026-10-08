@@ -1,0 +1,193 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Phase 1 report — Fold</title>
+<meta name="description" content="Phase 1 report: structure prediction and molecular dynamics of KRAS G12D on two NVIDIA H100 GPUs.">
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Archivo:wdth,wght@62..125,400..800&display=swap" rel="stylesheet">
+<style>
+:root{--black:#000;--white:#fff;--grey:#EDEDEB;--muted:#6E6E6E;--lavender:#C4CBED;--coral:#E4544C;--pink:#E8B8D2;--blue:#3448C5;
+  --font:"Archivo","Helvetica Neue",Arial,sans-serif;box-sizing:border-box}
+*,*::before,*::after{box-sizing:inherit}
+body{margin:0;background:var(--white);color:var(--black);font:400 17px/1.6 var(--font);-webkit-font-smoothing:antialiased}
+a{color:inherit} a:focus-visible{outline:2px solid var(--coral);outline-offset:3px}
+h1,h2,h3,p{margin:0}
+.container{max-width:1080px;margin:0 auto;padding:0 clamp(20px,4vw,48px)}
+.tag{font-size:.8rem;font-weight:600;letter-spacing:.08em;text-transform:uppercase}
+header.top{background:var(--black);color:var(--white);padding:calc(28px + env(safe-area-inset-top,0px)) 0 64px}
+.bar{display:flex;justify-content:space-between;align-items:center;gap:16px;margin-bottom:72px}
+.brand{font-weight:800;font-stretch:125%;font-size:1.35rem;text-decoration:none}
+.back{font-size:.8rem;letter-spacing:.08em;text-transform:uppercase;text-decoration:none;opacity:.8}
+.back:hover{opacity:1}
+h1{font-size:clamp(2.2rem,6vw,4.8rem);font-weight:600;font-stretch:110%;letter-spacing:-.03em;line-height:1;max-width:16ch;margin-top:14px}
+.meta{display:flex;flex-wrap:wrap;gap:10px;margin-top:28px}
+.chip{font-size:.78rem;letter-spacing:.06em;text-transform:uppercase;font-weight:600;padding:7px 14px;border-radius:999px;border:1px solid rgba(255,255,255,.3)}
+.chip.done{background:var(--white);color:var(--black);border-color:var(--white)}
+main section{padding:56px 0;border-bottom:1px solid #DADADA}
+main section:last-child{border-bottom:0}
+.sec{display:grid;grid-template-columns:1fr 3fr;gap:32px}
+@media (max-width:760px){.sec{grid-template-columns:1fr;gap:16px}}
+h2{font-size:clamp(1.5rem,2.6vw,2rem);font-weight:600;font-stretch:106%;letter-spacing:-.02em;line-height:1.1;margin-bottom:16px}
+.prose{max-width:66ch}
+.prose p+p{margin-top:12px}
+.kv{display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:10px;margin-top:20px}
+.kv div{background:var(--grey);border-radius:12px;padding:16px 18px}
+.kv dt{font-size:.78rem;letter-spacing:.06em;text-transform:uppercase;color:var(--muted);font-weight:600}
+.kv dd{margin:6px 0 0;font-size:1.25rem;font-weight:600;font-stretch:106%}
+.pending{display:inline-block;font-size:.72rem;letter-spacing:.06em;text-transform:uppercase;font-weight:600;padding:3px 10px;border-radius:999px;background:var(--pink);color:var(--black);vertical-align:middle}
+.empty{color:var(--muted)}
+.scroll{overflow-x:auto;margin-top:20px}
+table{border-collapse:collapse;width:100%;min-width:620px;font-size:.95rem}
+th{text-align:left;font-size:.78rem;letter-spacing:.06em;text-transform:uppercase;color:var(--muted);font-weight:600;padding:10px 14px 10px 0;border-bottom:1px solid var(--black)}
+td{padding:12px 14px 12px 0;border-bottom:1px solid #E2E2E2;vertical-align:top}
+td.mono{font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;font-size:.85rem;overflow-wrap:anywhere}
+ul.plain{margin:16px 0 0;padding-left:20px} ul.plain li+li{margin-top:8px}
+.review{background:var(--lavender);border-radius:16px;padding:clamp(22px,3vw,34px)}
+footer{background:var(--black);color:rgba(255,255,255,.6);font-size:.85rem;padding:32px 0 calc(40px + env(safe-area-inset-bottom,0px))}
+</style>
+</head>
+<body>
+
+<header class="top">
+  <div class="container">
+    <div class="bar"><a class="brand" href="/">FOLD</a><a class="back" href="/#reports">All reports</a></div>
+    <p class="tag" id="r-kicker">Phase report</p>
+    <h1 id="r-title">—</h1>
+    <div class="meta" id="r-meta"></div>
+  </div>
+</header>
+
+<main class="container" id="report"></main>
+
+<footer><div class="container">Research data, not medical advice. Results from simulations have not been tested in a lab.</div></footer>
+
+<!--
+  ================= REPORT DATA =================
+  Everything on this page comes from the JSON below.
+  Leave a value as "" or null and the page shows "Pending data" in its place.
+-->
+<script type="application/json" id="report-data">
+{
+  "phase": 1,
+  "title": "KRAS G12D: structure and molecular dynamics",
+  "status": "Completed",
+  "period": { "start": "", "end": "" },
+
+  "summary": "",
+
+  "target": {
+    "name": "KRAS G12D",
+    "uniprot": "P01116",
+    "why": "KRAS is one of the most frequently mutated genes in human cancer, and the G12D variant is especially common in pancreatic cancer. It has long been considered very hard to drug because its surface offers few obvious pockets for a small molecule to bind."
+  },
+
+  "hardware": [
+    { "model": "NVIDIA H100 80GB", "count": 2, "gpu_hours": null }
+  ],
+
+  "software": [
+    { "name": "", "version": "", "role": "Structure prediction" },
+    { "name": "", "version": "", "role": "Molecular dynamics" },
+    { "name": "", "version": "", "role": "Docking" }
+  ],
+
+  "structure": {
+    "method": "",
+    "mean_plddt": null,
+    "notes": ""
+  },
+
+  "md": {
+    "replicas": 2,
+    "ns_per_replica": null,
+    "total_ns": null,
+    "temperature_k": null,
+    "force_field": "",
+    "water_model": "",
+    "findings": ""
+  },
+
+  "docking": {
+    "library": "",
+    "compounds_screened": null,
+    "method": "",
+    "top": []
+  },
+
+  "claude_review": "",
+
+  "limitations": [
+    "All results come from computer simulations. None of the compounds listed here have been made or tested in a lab.",
+    "Docking scores estimate how well a molecule might bind; they are often wrong and are used to narrow a list, not to prove activity.",
+    "A promising simulation result is an early starting point. Any real drug would still need lab testing, animal studies and clinical trials."
+  ],
+
+  "downloads": []
+}
+</script>
+
+<script>
+const R = JSON.parse(document.getElementById("report-data").textContent);
+const has = v => !(v === null || v === undefined || v === "" || (Array.isArray(v) && !v.length));
+const esc = v => String(v).replace(/[&<>"]/g, c => ({ "&":"&amp;", "<":"&lt;", ">":"&gt;", '"':"&quot;" }[c]));
+const PEND = '<span class="pending">Pending data</span>';
+const val = (v, unit = "") => has(v) ? esc(typeof v === "number" ? v.toLocaleString("en-US") : v) + (unit ? " " + unit : "") : PEND;
+const kv = pairs => `<dl class="kv">${pairs.map(([k, v]) => `<div><dt>${k}</dt><dd>${v}</dd></div>`).join("")}</dl>`;
+const para = t => has(t) ? t.split(/\n\s*\n/).map(p => `<p>${esc(p)}</p>`).join("") : `<p class="empty">${PEND}</p>`;
+const section = (label, title, body) => `<section><div class="sec"><p class="tag">${label}</p><div><h2>${title}</h2>${body}</div></div></section>`;
+
+document.title = `Phase ${R.phase} report: ${R.title} — Fold`;
+document.getElementById("r-kicker").textContent = `Phase ${R.phase} report`;
+document.getElementById("r-title").textContent = R.title;
+const dates = has(R.period.start) ? `${R.period.start}${has(R.period.end) ? " to " + R.period.end : ""}` : "";
+document.getElementById("r-meta").innerHTML =
+  `<span class="chip${/complete/i.test(R.status) ? " done" : ""}">${esc(R.status)}</span>` +
+  (dates ? `<span class="chip">${esc(dates)}</span>` : "") +
+  R.hardware.map(h => `<span class="chip">${h.count} × ${esc(h.model)}</span>`).join("");
+
+const gpuHours = R.hardware.reduce((a, h) => a + (h.gpu_hours || 0), 0);
+let html = "";
+
+html += section("Summary", "What this phase did", `<div class="prose">${para(R.summary)}</div>`);
+
+html += section("Target", esc(R.target.name), `<div class="prose"><p>${esc(R.target.why)}</p></div>` +
+  kv([["Protein", val(R.target.name)], ["UniProt ID", val(R.target.uniprot)]]));
+
+html += section("Setup", "Hardware and software",
+  kv([["GPUs", R.hardware.map(h => `${h.count} × ${esc(h.model)}`).join("<br>")], ["GPU hours", gpuHours ? gpuHours.toLocaleString("en-US") : PEND]]) +
+  `<div class="scroll"><table><thead><tr><th>Step</th><th>Software</th><th>Version</th></tr></thead><tbody>` +
+  R.software.map(s => `<tr><td>${esc(s.role)}</td><td>${val(s.name)}</td><td>${val(s.version)}</td></tr>`).join("") +
+  `</tbody></table></div>`);
+
+html += section("Step 1", "Structure prediction",
+  kv([["Method", val(R.structure.method)], ["Mean confidence (pLDDT)", val(R.structure.mean_plddt)]]) +
+  `<div class="prose" style="margin-top:20px">${has(R.structure.notes) ? para(R.structure.notes) : ""}</div>`);
+
+html += section("Step 2", "Molecular dynamics",
+  kv([["Replicas", val(R.md.replicas)], ["Per replica", val(R.md.ns_per_replica, "ns")], ["Total simulated", val(R.md.total_ns, "ns")],
+      ["Temperature", val(R.md.temperature_k, "K")], ["Force field", val(R.md.force_field)], ["Water model", val(R.md.water_model)]]) +
+  `<div class="prose" style="margin-top:20px">${para(R.md.findings)}</div>`);
+
+const topHits = R.docking.top || [];
+html += section("Step 3", "Compound screening",
+  kv([["Library", val(R.docking.library)], ["Compounds screened", val(R.docking.compounds_screened)], ["Method", val(R.docking.method)]]) +
+  (topHits.length
+    ? `<div class="scroll"><table><thead><tr><th>Rank</th><th>Compound</th><th>Score (kcal/mol)</th><th>SMILES</th><th>Notes</th></tr></thead><tbody>` +
+      topHits.map(t => `<tr><td>${val(t.rank)}</td><td>${val(t.id)}</td><td>${val(t.score_kcal_mol)}</td><td class="mono">${val(t.smiles)}</td><td>${has(t.notes) ? esc(t.notes) : ""}</td></tr>`).join("") +
+      `</tbody></table></div>`
+    : `<p class="empty" style="margin-top:20px">Top compounds: ${PEND}</p>`));
+
+html += section("Review", "Claude's review", `<div class="review prose">${para(R.claude_review)}</div>`);
+
+html += section("Limits", "What these results don't show", `<ul class="plain prose">${R.limitations.map(l => `<li>${esc(l)}</li>`).join("")}</ul>`);
+
+html += section("Data", "Downloads", has(R.downloads)
+  ? `<ul class="plain">${R.downloads.map(d => `<li><a href="${esc(d.url)}">${esc(d.label)}</a></li>`).join("")}</ul>`
+  : `<p class="empty">${PEND}</p>`);
+
+document.getElementById("report").innerHTML = html;
+</script>
+</body>
+</html>

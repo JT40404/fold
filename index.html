@@ -175,6 +175,20 @@ footer{background:var(--black);color:var(--white);padding:0 0 calc(40px + env(sa
 .ca-panel.pending .ca-panel-btns{display:none}
 .hero-foot{margin-top:40px}
 .foot-ca{margin-top:36px;color:var(--white)}
+
+/* Reports */
+.reports{background:var(--grey)}
+.r-list{display:grid;gap:10px}
+.r-card{display:grid;grid-template-columns:auto 1fr auto auto;align-items:center;gap:24px;padding:26px 28px;border-radius:14px;background:var(--white);text-decoration:none;transition:background .2s ease}
+a.r-card:hover{background:var(--lavender)}
+a.r-card svg{width:18px;height:18px;transition:transform .5s ease}
+a.r-card:hover svg{transform:rotate(45deg)}
+.r-phase{font-weight:700;font-stretch:120%;font-size:.95rem}
+.r-title{font-size:clamp(1.1rem,2vw,1.5rem);font-weight:600;font-stretch:106%;letter-spacing:-.01em}
+.r-status{font-size:.75rem;letter-spacing:.08em;text-transform:uppercase;font-weight:600;padding:6px 12px;border-radius:999px;background:var(--black);color:var(--white);white-space:nowrap}
+.r-card.is-next{background:transparent;border:1px dashed #BDBDBD;grid-template-columns:auto 1fr auto}
+.r-card.is-next .r-status{background:transparent;color:var(--black);border:1px solid #BDBDBD}
+@media (max-width:640px){.r-card,.r-card.is-next{grid-template-columns:1fr auto;gap:10px 16px}.r-title{grid-column:1/-1;grid-row:2}}
 </style>
 </head>
 <body>
@@ -183,7 +197,7 @@ footer{background:var(--black);color:var(--white);padding:0 0 calc(40px + env(sa
   <div class="container">
     <a class="brand" href="#top" data-brand>FOLD</a>
     <nav class="nav-links" aria-label="Sections">
-      <a href="#how">How it works</a><a href="#live">Live</a><a href="#research">Research</a><a href="#targets">Targets</a><a href="#open">Open science</a><a href="#limits">Limits</a>
+      <a href="#how">How it works</a><a href="#live">Live</a><a href="#research">Research</a><a href="#targets">Targets</a><a href="#open">Open science</a><a href="#reports">Reports</a><a href="#limits">Limits</a>
     </nav>
     <div class="ca pending" data-ca>
       <span class="ca-label">CA</span>
@@ -311,7 +325,7 @@ footer{background:var(--black);color:var(--white);padding:0 0 calc(40px + env(sa
         <p class="tag">Targets</p>
         <div>
           <h2 class="h2">The proteins in the queue.</h2>
-          <p class="sub">Each has strong evidence of a role in cancer. Holders vote on what runs next.</p>
+          <p class="sub">Each has strong evidence of a role in cancer and a known structure to start from.</p>
         </div>
       </div>
       <div class="t-grid" id="target-grid"></div>
@@ -335,6 +349,31 @@ footer{background:var(--black);color:var(--white);padding:0 0 calc(40px + env(sa
       </div>
     </div>
     <div class="pink-block" aria-hidden="true"></div>
+  </section>
+
+  <section class="reports" id="reports">
+    <div class="container">
+      <div class="head-grid">
+        <p class="tag">Reports</p>
+        <div>
+          <h2 class="h2">Results, phase by phase.</h2>
+          <p class="sub">A full write-up is published as each phase finishes, with the setup, results, Claude's review and the raw data.</p>
+        </div>
+      </div>
+      <div class="r-list">
+        <a class="r-card" href="/reports/phase-1.html">
+          <span class="r-phase">Phase 1</span>
+          <span class="r-title">KRAS G12D: structure and molecular dynamics</span>
+          <span class="r-status">Completed</span>
+          <svg viewBox="0 0 20 20" aria-hidden="true"><path d="M5 15 15 5M7 5h8v8" stroke="currentColor" stroke-width="2" fill="none"/></svg>
+        </a>
+        <div class="r-card is-next">
+          <span class="r-phase">Phase 2</span>
+          <span class="r-title">Compound screening against KRAS G12D</span>
+          <span class="r-status">Up next</span>
+        </div>
+      </div>
+    </div>
   </section>
 
   <section class="quote">
@@ -368,7 +407,8 @@ footer{background:var(--black);color:var(--white);padding:0 0 calc(40px + env(sa
       <nav class="foot-links" aria-label="Footer">
         <a href="#how">How it works</a><a href="#targets">Targets</a>
         <a href="#live">Live compute</a><a href="#open">Open science</a>
-        <a href="#research">Research</a><a href="#limits">Limits</a>
+        <a href="#research">Research</a><a href="#reports">Reports</a>
+        <a href="#limits">Limits</a>
       </nav>
     </div>
     <div class="ca foot-ca pending" data-ca>
