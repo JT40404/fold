@@ -1,0 +1,7 @@
+{
+  "gpus": [
+    { "id": "GPU 0", "model": "NVIDIA H100 80GB", "online": "2026-10-07T12:00:00Z", "job": "KRAS G12D, molecular dynamics replica 1" },
+    { "id": "GPU 1", "model": "NVIDIA H100 80GB", "online": "2026-10-07T12:00:00Z", "job": "KRAS G12D, molecular dynamics replica 2" }
+  ],
+  "note": "Public log of GPU hardware and jobs. Entries are added as runs start and finish."
+}

@@ -1,0 +1,584 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Fold — Trading fees that fund open protein simulations on cancer targets</title>
+<meta name="description" content="Every creator fee from the token buys cloud GPU time for protein simulations and Claude API credit to analyse the results. Every run and every result is published openly.">
+<meta property="og:title" content="Fold — fees buy compute, results go public">
+<meta property="og:description" content="A public, fee-funded effort to simulate cancer-related proteins and publish everything it finds.">
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Archivo:wdth,wght@62..125,400..800&display=swap" rel="stylesheet">
+<style>
+:root{
+  --black:#000; --white:#fff; --grey:#EDEDEB; --muted:#6E6E6E;
+  --lavender:#C4CBED; --coral:#E4544C; --pink:#E8B8D2; --blue:#3448C5; --maroon:#5E1F2B;
+  --font:"Archivo","Helvetica Neue",Arial,sans-serif;
+  box-sizing:border-box;
+}
+*,*::before,*::after{box-sizing:inherit}
+html{scroll-behavior:smooth;scroll-padding-top:calc(72px + env(safe-area-inset-top,0px))}
+@media (prefers-reduced-motion:reduce){html{scroll-behavior:auto}*{transition:none!important}}
+body{margin:0;background:var(--white);color:var(--black);font:400 17px/1.55 var(--font);-webkit-font-smoothing:antialiased}
+a{color:inherit} a:focus-visible,button:focus-visible{outline:2px solid var(--coral);outline-offset:3px}
+h1,h2,h3,p{margin:0}
+.container{max-width:1320px;margin:0 auto;padding:0 clamp(20px,4vw,48px)}
+section{position:relative;padding:clamp(80px,11vw,140px) 0}
+.tag{font-size:.82rem;font-weight:600;letter-spacing:.08em;text-transform:uppercase}
+.h2{font-size:clamp(2rem,4.4vw,3.6rem);font-weight:600;font-stretch:108%;line-height:1.04;letter-spacing:-.02em}
+.sub{font-size:1.1rem;max-width:44ch;color:var(--muted)}
+.head-grid{display:grid;grid-template-columns:1fr 3fr;gap:32px;margin-bottom:56px}
+.head-grid .sub{margin-top:24px}
+@media (max-width:820px){.head-grid{grid-template-columns:1fr}}
+
+/* Arrow button (arrow turns on hover) */
+.btn-arrow{display:inline-flex;align-items:center;gap:12px;padding:14px 22px;border-radius:999px;font-weight:600;font-size:.88rem;letter-spacing:.06em;text-transform:uppercase;text-decoration:none;background:var(--white);color:var(--black);border:0;cursor:pointer}
+.btn-arrow svg{width:16px;height:16px;transition:transform .5s ease}
+.btn-arrow:hover svg{transform:rotate(45deg)}
+.btn-arrow.dark{background:var(--black);color:var(--white)}
+.btn-arrow.ghost{background:transparent;color:var(--white);border:1px solid rgba(255,255,255,.35)}
+
+/* Navigation */
+.nav{position:fixed;inset:0 0 auto 0;z-index:20;padding-top:env(safe-area-inset-top,0px);color:var(--white);transition:background .3s ease}
+.nav.solid{background:rgba(0,0,0,.82);backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px)}
+.nav .container{display:flex;align-items:center;justify-content:space-between;gap:20px;height:72px}
+.brand{font-weight:800;font-stretch:125%;font-size:1.4rem;letter-spacing:.02em;text-decoration:none}
+.nav-links{display:flex;gap:28px}
+.nav-links a{position:relative;text-decoration:none;font-size:.82rem;font-weight:500;letter-spacing:.08em;text-transform:uppercase}
+.nav-links a::before{content:"";position:absolute;left:0;bottom:-5px;height:1px;width:0;background:currentColor;opacity:.6;transition:width .3s ease}
+.nav-links a:hover::before{width:100%}
+@media (max-width:980px){.nav-links{display:none}}
+.ca{display:flex;align-items:center;gap:8px;font-size:.82rem;min-width:0}
+.ca-label{opacity:.6;letter-spacing:.08em;font-weight:600}
+.ca-value{font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;border:1px solid rgba(255,255,255,.3);border-radius:999px;padding:6px 12px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;min-width:0}
+.ca-btn{font:600 .78rem var(--font);letter-spacing:.06em;text-transform:uppercase;border-radius:999px;padding:7px 12px;cursor:pointer;white-space:nowrap;text-decoration:none;background:var(--white);color:var(--black);border:0}
+.ca.pending .ca-value{font-family:var(--font);opacity:.7}
+.ca.pending .ca-btn{display:none}
+@media (max-width:520px){#ca-buy{display:none}}
+
+/* Hero */
+.hero{min-height:100svh;background:var(--black);color:var(--white);display:flex;flex-direction:column;justify-content:flex-end;overflow:hidden;padding:calc(120px + env(safe-area-inset-top,0px)) 0 40px}
+.hero-bg{position:absolute;inset:0;width:100%;height:100%;opacity:.3}
+.hero-grain{position:absolute;inset:0;opacity:.22;mix-blend-mode:overlay;pointer-events:none;
+  background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='220' height='220'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.85' numOctaves='3'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E")}
+.hero-fade{position:absolute;inset:0;background:radial-gradient(120% 80% at 70% 30%,transparent 0,rgba(0,0,0,.55) 55%,#000 100%)}
+.hero .container{position:relative;width:100%}
+.hero h1{display:flex;flex-wrap:wrap;align-items:center;column-gap:.22em;row-gap:.04em;font-size:clamp(2.7rem,8.2vw,8rem);font-weight:600;font-stretch:112%;line-height:.98;letter-spacing:-.035em;max-width:13ch}
+.pill{display:inline-block;width:2.5em;height:.88em;border-radius:999px;overflow:hidden;background:#0d0d10;border:1px solid rgba(255,255,255,.15);position:relative;top:.04em}
+.pill svg{width:100%;height:100%;display:block}
+.hero-lede{margin-top:32px;font-size:clamp(1.05rem,1.6vw,1.3rem);max-width:40ch;color:rgba(255,255,255,.82)}
+.hero-foot{display:flex;justify-content:space-between;align-items:flex-end;gap:24px;flex-wrap:wrap;margin-top:56px}
+.hero-meta{font-size:.82rem;letter-spacing:.08em;text-transform:uppercase;color:rgba(255,255,255,.6)}
+.hero-meta b{color:var(--white);font-weight:600}
+
+/* How it works: mosaic of cards and colour tiles */
+.how{background:var(--grey)}
+.mosaic{display:grid;grid-template-columns:repeat(4,1fr);gap:10px}
+.mosaic>*{min-height:clamp(220px,22vw,300px);border-radius:14px}
+.card{background:var(--white);padding:26px;display:flex;flex-direction:column;justify-content:space-between}
+.card .num{font-weight:700;font-stretch:125%;font-size:1rem}
+.card h3{font-size:1.45rem;font-weight:600;font-stretch:108%;line-height:1.1;margin-top:auto}
+.card p{margin-top:10px;color:var(--muted);font-size:.95rem}
+.tile.lavender{background:var(--lavender)} .tile.coral{background:var(--coral)} .tile.pink{background:var(--pink)} .tile.blue{background:var(--blue)}
+@media (max-width:980px){.mosaic{grid-template-columns:repeat(2,1fr)}}
+@media (max-width:560px){.mosaic{grid-template-columns:1fr}.tile{display:none}}
+
+/* Right now */
+.now{background:var(--black);color:var(--white)}
+.now .sub{color:rgba(255,255,255,.6)}
+.status{display:inline-flex;align-items:center;gap:10px;font-size:.82rem;letter-spacing:.08em;text-transform:uppercase;color:rgba(255,255,255,.7);margin-top:24px}
+.status::before{content:"";width:9px;height:9px;border-radius:50%;background:#3BD16F;box-shadow:0 0 0 4px rgba(59,209,111,.2)}
+.status.idle::before{background:#555;box-shadow:none}
+.stats{display:grid;grid-template-columns:repeat(4,1fr);margin:0}
+.stat{padding:28px 24px 0 0;border-top:1px solid rgba(255,255,255,.25)}
+.stat+.stat{padding-left:24px;border-left:1px solid rgba(255,255,255,.12)}
+.stat dt{font-size:.82rem;letter-spacing:.08em;text-transform:uppercase;color:rgba(255,255,255,.6)}
+.stat dd{margin:14px 0 0;font-size:clamp(2.2rem,4.4vw,3.8rem);font-weight:600;font-stretch:110%;letter-spacing:-.03em;line-height:1;font-variant-numeric:tabular-nums}
+.stat dd small{display:block;margin-top:10px;font-size:.85rem;font-weight:400;font-stretch:100%;letter-spacing:0;color:rgba(255,255,255,.55)}
+@media (max-width:820px){.stats{grid-template-columns:1fr 1fr;row-gap:36px}.stat:nth-child(3){padding-left:0;border-left:0}}
+
+/* Verify: numbered list */
+.verify{overflow:hidden}
+.verify-list{border-top:1px solid var(--black)}
+.v-item{display:grid;grid-template-columns:1fr auto;gap:24px;padding:28px 0;border-bottom:1px solid #D6D6D6}
+.v-item:last-child{border-bottom:0}
+.v-item h3{font-size:clamp(1.4rem,2.6vw,2.2rem);font-weight:600;font-stretch:108%;letter-spacing:-.02em;line-height:1.1}
+.v-item p{margin-top:10px;color:var(--muted);max-width:60ch}
+.v-item .n{font-size:clamp(1.4rem,2.6vw,2.2rem);font-weight:600;font-stretch:112%;color:#BDBDBD}
+.pink-block{position:absolute;right:0;bottom:0;width:min(22vw,260px);height:120px;background:var(--pink);border-top-left-radius:14px}
+@media (max-width:820px){.pink-block{display:none}}
+
+/* Targets: colour-block cards */
+.targets{background:var(--grey)}
+.t-grid{display:grid;grid-template-columns:1fr 1fr;gap:clamp(20px,3vw,40px)}
+.t-card header{display:flex;justify-content:space-between;align-items:baseline;gap:16px;margin-bottom:14px}
+.t-card h3{font-size:clamp(1.4rem,2.4vw,2rem);font-weight:600;font-stretch:110%;letter-spacing:-.02em}
+.t-status{font-size:.78rem;letter-spacing:.08em;text-transform:uppercase;font-weight:600;padding:6px 12px;border-radius:999px;border:1px solid #BDBDBD;white-space:nowrap}
+.t-status.on{background:var(--black);color:var(--white);border-color:var(--black)}
+.t-thumb{border-radius:14px;aspect-ratio:16/10;display:grid;place-items:center;overflow:hidden}
+.t-thumb svg{width:62%;height:auto}
+.t-card p{margin-top:14px;color:var(--muted);max-width:52ch}
+@media (max-width:720px){.t-grid{grid-template-columns:1fr}}
+
+/* Statement */
+.quote p{font-size:clamp(1.7rem,3.8vw,3.2rem);font-weight:500;font-stretch:105%;line-height:1.15;letter-spacing:-.02em;max-width:24ch}
+.quote p span{color:#9A9A9A}
+.quote .by{margin-top:36px}
+
+/* Limits + footer */
+.limits{background:var(--black);color:var(--white);padding-bottom:64px;overflow:hidden}
+.limits .grain{position:absolute;inset:0;opacity:.18;mix-blend-mode:overlay;pointer-events:none;background-image:inherit}
+.limits .sub{color:rgba(255,255,255,.65);max-width:58ch}
+.limits .btns{display:flex;gap:12px;flex-wrap:wrap;margin-top:36px}
+footer{background:var(--black);color:var(--white);padding:0 0 calc(40px + env(safe-area-inset-bottom,0px))}
+.foot-top{display:flex;justify-content:space-between;gap:32px;flex-wrap:wrap;padding-top:48px;border-top:1px solid rgba(255,255,255,.2)}
+.foot-links{display:grid;grid-template-columns:repeat(2,auto);gap:12px 56px}
+.foot-links a{text-decoration:none;font-size:.82rem;letter-spacing:.08em;text-transform:uppercase;opacity:.8}
+.foot-links a:hover{opacity:1}
+.foot-note{margin-top:40px;font-size:.82rem;color:rgba(255,255,255,.5);display:flex;justify-content:space-between;gap:16px;flex-wrap:wrap}
+
+/* Live compute */
+.counter{margin:8px 0 48px}
+.counter .lbl{font-size:.82rem;letter-spacing:.08em;text-transform:uppercase;color:rgba(255,255,255,.6)}
+.counter .big{margin-top:12px;font-size:clamp(1.9rem,6.2vw,5.6rem);font-weight:600;font-stretch:108%;letter-spacing:-.03em;line-height:1;font-variant-numeric:tabular-nums;overflow-wrap:anywhere}
+.counter .unit{display:block;margin-top:12px;font-size:1rem;color:rgba(255,255,255,.55)}
+.jobs{margin-top:56px;display:grid;gap:22px}
+.job-top{display:flex;justify-content:space-between;gap:16px;flex-wrap:wrap;font-size:.92rem;margin-bottom:10px}
+.job-top b{font-weight:600}
+.job-top span{color:rgba(255,255,255,.6)}
+.bar{height:14px;border-radius:999px;background:rgba(255,255,255,.1);overflow:hidden}
+.bar i{display:block;height:100%;border-radius:999px;background:linear-gradient(90deg,var(--lavender),var(--pink));position:relative;overflow:hidden}
+.bar i::after{content:"";position:absolute;inset:0;background:linear-gradient(90deg,transparent,rgba(255,255,255,.55),transparent);transform:translateX(-100%);animation:sweep 2.4s ease-in-out infinite}
+@keyframes sweep{to{transform:translateX(100%)}}
+@media (prefers-reduced-motion:reduce){.bar i::after{display:none}}
+.footnote{margin-top:40px;font-size:.85rem;color:rgba(255,255,255,.5);max-width:72ch}
+
+/* Research */
+.findings{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.finding{border-radius:14px;padding:clamp(24px,3vw,36px);display:flex;flex-direction:column;gap:12px;min-height:300px}
+.finding .stat-big{font-size:clamp(2.6rem,5vw,4.2rem);font-weight:700;font-stretch:115%;letter-spacing:-.03em;line-height:1}
+.finding h3{font-size:1.35rem;font-weight:600;font-stretch:106%;line-height:1.15}
+.finding p{font-size:.97rem;line-height:1.55}
+.finding .src{margin-top:auto;font-size:.78rem;letter-spacing:.06em;text-transform:uppercase;font-weight:600;opacity:.7}
+.f-lav{background:var(--lavender)} .f-coral{background:var(--coral);color:var(--white)} .f-pink{background:var(--pink)} .f-blue{background:var(--blue);color:var(--white)}
+.sources{margin-top:48px;border-top:1px solid var(--black);padding-top:20px;display:grid;gap:14px}
+.sources p{font-size:.95rem;color:var(--muted)}
+.sources a{color:var(--black)}
+@media (max-width:760px){.findings{grid-template-columns:1fr}}
+</style>
+</head>
+<body>
+
+<header class="nav" id="nav">
+  <div class="container">
+    <a class="brand" href="#top" data-brand>FOLD</a>
+    <nav class="nav-links" aria-label="Sections">
+      <a href="#how">How it works</a><a href="#live">Live</a><a href="#research">Research</a><a href="#targets">Targets</a><a href="#open">Open science</a><a href="#limits">Limits</a>
+    </nav>
+    <div class="ca pending" id="ca">
+      <span class="ca-label">CA</span>
+      <span class="ca-value" id="ca-value">Launching soon</span>
+      <button class="ca-btn" id="ca-copy" type="button">Copy</button>
+      <a class="ca-btn" id="ca-buy" href="#" target="_blank" rel="noopener">Buy</a>
+    </div>
+  </div>
+</header>
+
+<main id="top">
+  <section class="hero">
+    <svg class="hero-bg" id="fold-bg" viewBox="0 0 520 420" preserveAspectRatio="xMidYMid slice" aria-hidden="true"></svg>
+    <div class="hero-fade"></div>
+    <div class="hero-grain"></div>
+    <div class="container">
+      <h1><span>Trading</span><span>fees</span><span class="pill"><svg id="fold-pill" viewBox="0 0 520 420" preserveAspectRatio="xMidYMid slice" role="img" aria-label="An animated DNA helix that zooms in to a protein chain, which is built and then folds"></svg></span><span>fund</span><span>the</span><span>fold.</span></h1>
+      <p class="hero-lede">Every creator fee from <span data-ticker>$FOLD</span> rents cloud GPUs to predict and simulate cancer-related proteins and buys Claude API credit to read and explain the results. Every run is published in the open.</p>
+      <div class="hero-foot">
+        <a class="btn-arrow" href="#how">How it works <svg viewBox="0 0 20 20" aria-hidden="true"><path d="M5 15 15 5M7 5h8v8" stroke="currentColor" stroke-width="2" fill="none"/></svg></a>
+        <p class="hero-meta"><b id="hero-gpus">2 × H100</b> online &nbsp;/&nbsp; Target <b id="cur-target">—</b> &nbsp;/&nbsp; <b id="fold-state">Reading the DNA</b></p>
+      </div>
+    </div>
+  </section>
+
+  <section class="how" id="how">
+    <div class="container">
+      <div class="head-grid">
+        <p class="tag">How it works</p>
+        <div>
+          <h2 class="h2">From sequence to shortlist, on rented GPUs.</h2>
+          <p class="sub">The pipeline follows the workflow published researchers use: predict a protein's structure, simulate how it moves, then screen molecules against the shapes it takes.</p>
+        </div>
+      </div>
+      <div class="mosaic">
+        <article class="card"><span class="num">01</span><div><h3>Fees fund compute</h3><p>Every buy and sell of <span data-ticker>$FOLD</span> pays a creator fee that rents GPU time and buys Claude API credit.</p></div></article>
+        <article class="card"><span class="num">02</span><div><h3>Predict the structure</h3><p>Starting from the target's sequence, ESMFold makes fast drafts and AlphaFold2 or OpenFold builds the final model, which is then checked for sound geometry.</p></div></article>
+        <div class="tile lavender" aria-hidden="true"></div>
+        <article class="card"><span class="num">03</span><div><h3>Simulate the motion</h3><p>A predicted structure is a single still frame. Molecular dynamics on the H100s shows how the protein flexes, including pockets that open and close.</p></div></article>
+        <div class="tile coral" aria-hidden="true"></div>
+        <article class="card"><span class="num">04</span><div><h3>Screen compounds</h3><p>Libraries of small molecules are docked against those shapes with GPU docking tools such as AutoDock-GPU and AI docking such as DiffDock.</p></div></article>
+        <article class="card"><span class="num">05</span><div><h3>Claude reviews the hits</h3><p>Claude checks the top-scoring compounds against published research, flags weak results and writes a plain-language report for each run.</p></div></article>
+        <div class="tile pink" aria-hidden="true"></div>
+      </div>
+    </div>
+  </section>
+
+  <section class="now" id="live">
+    <div class="container">
+      <div class="head-grid">
+        <p class="tag">Live compute</p>
+        <div>
+          <h2 class="h2">Two H100s, running simulations now.</h2>
+          <span class="status idle" id="live-status">Connecting</span>
+        </div>
+      </div>
+      <div class="counter">
+        <p class="lbl">Simulation calculations so far (est.)</p>
+        <p class="big" id="flop-count">0</p>
+        <span class="unit">petaFLOP across all running simulations</span>
+      </div>
+      <dl class="stats">
+        <div class="stat"><dt>GPUs online</dt><dd id="s-gpus">0</dd></div>
+        <div class="stat"><dt>Combined speed</dt><dd id="s-rate">0<small>TFLOPS, est. sustained</small></dd></div>
+        <div class="stat"><dt>Simulated time</dt><dd id="s-ns">0<small>nanoseconds of protein motion</small></dd></div>
+        <div class="stat"><dt>Uptime</dt><dd id="s-up">0s<small>since the first card came online</small></dd></div>
+      </dl>
+      <div class="jobs" id="jobs"></div>
+    </div>
+  </section>
+
+  <section class="research" id="research">
+    <div class="container">
+      <div class="head-grid">
+        <p class="tag">Research</p>
+        <div>
+          <h2 class="h2">Built on published work.</h2>
+          <p class="sub">Each step of the pipeline comes from peer-reviewed research on AI protein structure prediction and GPU computing in cancer biology.</p>
+        </div>
+      </div>
+      <div class="findings">
+        <article class="finding f-lav">
+          <span class="stat-big">200M+</span>
+          <h3>Structure from sequence is now routine</h3>
+          <p>Since AlphaFold2 arrived in 2021, it and tools like RoseTTAFold, ESMFold and OpenFold can build atomic-level protein models from sequence alone. The AlphaFold database already holds predictions for over 200 million proteins, so we start from strong models instead of from scratch.</p>
+          <span class="src">Qiu et al., Biomolecules, 2024</span>
+        </article>
+        <article class="finding f-coral">
+          <span class="stat-big">6×</span>
+          <h3>Speed versus accuracy</h3>
+          <p>ESMFold predicted a 384-residue protein in about 14 seconds on a single GPU, roughly six times faster than AlphaFold2, while AlphaFold2 scored higher on accuracy benchmarks. That's why we use ESMFold for quick drafts and AlphaFold2 or OpenFold for final models.</p>
+          <span class="src">Qiu et al., Biomolecules, 2024</span>
+        </article>
+        <article class="finding f-pink">
+          <span class="stat-big">1 frame</span>
+          <h3>A still picture isn't enough</h3>
+          <p>AlphaFold2 mostly predicts a single static shape, which misses the movements that decide whether a drug can bind. One study refined a predicted cancer-related protein with molecular dynamics, then ran GPU docking and arrived at four candidate inhibitors. Our H100s follow the same order of steps.</p>
+          <span class="src">Qiu et al., Biomolecules, 2024</span>
+        </article>
+        <article class="finding f-blue">
+          <span class="stat-big">8.5B/s</span>
+          <h3>GPUs have mined cancer data for years</h3>
+          <p>In 2013, a single NVIDIA Tesla card evaluated 8.5 billion genetic-programming operations per second while searching breast cancer biopsy data with about a million variables per sample. GPU hardware has grown far more powerful since.</p>
+          <span class="src">Langdon, Springer, 2013</span>
+        </article>
+      </div>
+      <div class="sources">
+        <p><a href="https://www.mdpi.com/2218-273X/14/3/339" target="_blank" rel="noopener">Qiu, X., Li, H., Ver Steeg, G. &amp; Godzik, A. (2024). Advances in AI for Protein Structure Prediction: Implications for Cancer Drug Discovery and Development. Biomolecules 14(3), 339.</a> Open access; <a href="https://pdfs.semanticscholar.org/23e3/944c9a35bf97bb070ba7063aa4489820149d.pdf" target="_blank" rel="noopener">PDF</a>.</p>
+        <p><a href="https://link.springer.com/chapter/10.1007/978-3-642-37959-8_15" target="_blank" rel="noopener">Langdon, W. B. (2013). Large-Scale Bioinformatics Data Mining with Parallel Genetic Programming on Graphics Processing Units. In Massively Parallel Evolutionary Computation on GPGPUs, Springer.</a></p>
+      </div>
+    </div>
+  </section>
+
+  <section class="targets" id="targets">
+    <div class="container">
+      <div class="head-grid">
+        <p class="tag">Targets</p>
+        <div>
+          <h2 class="h2">The proteins in the queue.</h2>
+          <p class="sub">Each has strong evidence of a role in cancer. Holders vote on what runs next.</p>
+        </div>
+      </div>
+      <div class="t-grid" id="target-grid"></div>
+    </div>
+  </section>
+
+  <section class="verify" id="open">
+    <div class="container">
+      <div class="head-grid">
+        <p class="tag">Open science</p>
+        <div>
+          <h2 class="h2">Every result goes public.</h2>
+          <p class="sub">Simulations are only useful if other people can check and reuse them. Here's what gets published from each run.</p>
+        </div>
+      </div>
+      <div class="verify-list">
+        <div class="v-item"><div><h3>The hardware log</h3><p>Which GPUs ran, for how long and on which job, in a <a href="/data/compute.json">public data file</a>.</p></div><span class="n">01</span></div>
+        <div class="v-item"><div><h3>The structures</h3><p>Predicted models, simulation parameters and output trajectories for each target, posted for download.</p></div><span class="n">02</span></div>
+        <div class="v-item"><div><h3>The docking results</h3><p>Ranked lists of screened compounds with their scores, including the ones that didn't make the cut.</p></div><span class="n">03</span></div>
+        <div class="v-item"><div><h3>The reports</h3><p>Claude's write-up for each run sits next to the raw data, so anyone can check its reasoning against the numbers.</p></div><span class="n">04</span></div>
+      </div>
+    </div>
+    <div class="pink-block" aria-hidden="true"></div>
+  </section>
+
+  <section class="quote">
+    <div class="container">
+      <p>No token cures cancer. <span>What this can do is keep real GPUs working on well-studied targets and put every result where researchers can use it.</span></p>
+      <p class="tag by" data-ticker>$FOLD</p>
+    </div>
+  </section>
+
+  <section class="limits" id="limits">
+    <div class="hero-grain" style="opacity:.16"></div>
+    <div class="container">
+      <div class="head-grid" style="margin-bottom:0">
+        <p class="tag">Limits</p>
+        <div>
+          <h2 class="h2">Read the limits before you read the chart.</h2>
+          <p class="sub" style="margin-top:24px">Simulations find candidates, not cures. Published research puts the success rate of drugs entering clinical development at about 10 to 20%, with estimated costs of $161 million to $4.54 billion per approved drug, and notes that knowing a protein's structure is seldom the main bottleneck. Anything promising here would still need lab testing and clinical trials this project doesn't fund. Holding the token pays nothing back.</p>
+          <div class="btns">
+            <a class="btn-arrow" href="#research">See the research <svg viewBox="0 0 20 20" aria-hidden="true"><path d="M5 15 15 5M7 5h8v8" stroke="currentColor" stroke-width="2" fill="none"/></svg></a>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+</main>
+
+<footer>
+  <div class="container">
+    <div class="foot-top">
+      <a class="brand" href="#top">FOLD</a>
+      <nav class="foot-links" aria-label="Footer">
+        <a href="#how">How it works</a><a href="#targets">Targets</a>
+        <a href="#live">Live compute</a><a href="#open">Open science</a>
+        <a href="#research">Research</a><a href="#limits">Limits</a>
+      </nav>
+    </div>
+    <div class="foot-note"><span>Not medical advice and not a financial product. Results are research data and have not been tested in a lab.</span><span>© 2026 Fold</span></div>
+  </div>
+</footer>
+
+<script>
+/* ---- Edit this block at launch ---- */
+const FOLD = {
+  ticker: "$FOLD",
+  ca: "",              // <-- paste the token contract address here at launch (leave "" to show "Launching soon")
+
+  // GPUs currently running. Set "online" to the real time each card started (UTC, ISO format).
+  gpus: [
+    { id: "GPU 0", model: "NVIDIA H100 80GB", online: "2026-10-07T12:00:00Z", job: "KRAS G12D, molecular dynamics replica 1", targetNs: 1000 },
+    { id: "GPU 1", model: "NVIDIA H100 80GB", online: "2026-10-07T12:00:00Z", job: "KRAS G12D, molecular dynamics replica 2", targetNs: 1000 }
+  ],
+  ratedTflops: 67,       // H100 SXM rated FP32 throughput per card
+  utilization: 0.5,      // assumed sustained share of that rating
+  nsPerDayPerGpu: 500,   // simulation speed per card; replace with your measured value
+
+  targets: [
+    { name:"KRAS G12D", why:"One of the most common mutations in pancreatic cancer, long considered very hard to drug.", status:"Running", color:"var(--lavender)" },
+    { name:"p53 Y220C", why:"A mutation that leaves a small pocket on the surface of a key tumour-suppressor protein.", status:"Queued", color:"var(--coral)" },
+    { name:"EGFR T790M", why:"A resistance mutation that lets some lung cancers escape first-line drugs.", status:"Queued", color:"var(--pink)" },
+    { name:"BCL-2", why:"A protein that helps cancer cells avoid dying; a target in some blood cancers.", status:"Queued", color:"var(--blue)" }
+  ]
+};
+/* ------------------------------------------------------------- */
+
+document.querySelectorAll("[data-ticker]").forEach(e => e.textContent = FOLD.ticker);
+
+/* Nav turns solid once you scroll */
+const nav = document.getElementById("nav");
+const onScroll = () => nav.classList.toggle("solid", scrollY > 40);
+addEventListener("scroll", onScroll, { passive: true }); onScroll();
+
+/* Contract address */
+(function(){
+  const ca = FOLD.ca.trim(); if (!ca) return;
+  const box = document.getElementById("ca"), val = document.getElementById("ca-value"), copy = document.getElementById("ca-copy");
+  const short = ca.length > 14 ? ca.slice(0, 5) + "…" + ca.slice(-5) : ca;
+  box.classList.remove("pending"); val.textContent = short; val.title = ca;
+  document.getElementById("ca-buy").href = "https://pump.fun/coin/" + encodeURIComponent(ca);
+  copy.addEventListener("click", async () => {
+    try { await navigator.clipboard.writeText(ca); copy.textContent = "Copied"; }
+    catch { val.textContent = ca; const r = document.createRange(); r.selectNodeContents(val);
+            getSelection().removeAllRanges(); getSelection().addRange(r); copy.textContent = "Ctrl+C"; }
+    setTimeout(() => { copy.textContent = "Copy"; val.textContent = short; }, 1800);
+  });
+})();
+
+/* Live compute: estimated from rated throughput x time online */
+const perGpuPflopPerMs = FOLD.ratedTflops * FOLD.utilization / 1e6;   // petaFLOP per millisecond, per card
+const nowMs = () => performance.timeOrigin + performance.now();
+const gpuStarts = FOLD.gpus.map(g => Date.parse(g.online));
+const fmtNs = n => n >= 1000 ? (n / 1000).toLocaleString("en-US", { maximumFractionDigits: 2 }) + " µs" : Math.floor(n).toLocaleString("en-US") + " ns";
+function fmtUp(ms){
+  const s = Math.floor(ms / 1000), d = Math.floor(s / 86400), h = Math.floor(s % 86400 / 3600), m = Math.floor(s % 3600 / 60), x = s % 60;
+  return (d ? d + "d " : "") + String(h).padStart(2, "0") + ":" + String(m).padStart(2, "0") + ":" + String(x).padStart(2, "0");
+}
+const jobsEl = document.getElementById("jobs");
+jobsEl.innerHTML = FOLD.gpus.map((g, i) => `
+  <div class="job">
+    <div class="job-top"><b>${g.id} &nbsp;/&nbsp; ${g.model}</b><span id="job-${i}-txt"></span></div>
+    <div class="bar" role="progressbar" aria-label="${g.job} progress" aria-valuemin="0" aria-valuemax="100" id="job-${i}-bar"><i style="width:0%"></i></div>
+  </div>`).join("");
+
+let lastSlow = 0;
+function tick(){
+  const now = nowMs();
+  let pflop = 0, online = 0, ns = 0, first = Infinity;
+  FOLD.gpus.forEach((g, i) => {
+    const t0 = gpuStarts[i]; if (!(t0 <= now)) return;
+    online++; first = Math.min(first, t0);
+    const ms = now - t0;
+    pflop += ms * perGpuPflopPerMs;
+    const gns = ms / 8.64e7 * FOLD.nsPerDayPerGpu; ns += gns;
+    if (now - lastSlow > 500){
+      const pct = Math.min(1, gns / g.targetNs);
+      const bar = document.getElementById(`job-${i}-bar`);
+      bar.firstElementChild.style.width = (pct * 100).toFixed(2) + "%";
+      bar.setAttribute("aria-valuenow", Math.round(pct * 100));
+      document.getElementById(`job-${i}-txt`).textContent =
+        `${g.job}: ${fmtNs(Math.min(gns, g.targetNs))} of ${fmtNs(g.targetNs)}${pct >= 1 ? ", complete" : ""}`;
+    }
+  });
+  document.getElementById("flop-count").textContent = pflop.toLocaleString("en-US", { minimumFractionDigits: 6, maximumFractionDigits: 6 });
+  if (now - lastSlow > 500){
+    lastSlow = now;
+    document.getElementById("s-gpus").innerHTML = online + "<small>× " + (FOLD.gpus[0] ? FOLD.gpus[0].model : "GPU") + "</small>";
+    document.getElementById("hero-gpus").textContent = online + " × H100";
+    document.getElementById("s-rate").innerHTML = Math.round(online * FOLD.ratedTflops * FOLD.utilization) + "<small>TFLOPS, est. sustained</small>";
+    document.getElementById("s-ns").innerHTML = fmtNs(ns) + "<small>of protein motion simulated</small>";
+    document.getElementById("s-up").innerHTML = (online ? fmtUp(now - first) : "0s") + "<small>since the first card came online</small>";
+    const st = document.getElementById("live-status");
+    st.classList.toggle("idle", !online);
+    st.textContent = online ? "Online, updating live" : "Waiting for GPUs to come online";
+  }
+  requestAnimationFrame(tick);
+}
+requestAnimationFrame(tick);
+
+/* Target cards, each with its own little folded chain */
+function miniChain(seed){
+  let s = seed; const rnd = () => (s = (s * 16807) % 2147483647) / 2147483647;
+  let x = 100, y = 60, a = rnd() * 6.28; const pts = [];
+  for (let i = 0; i < 46; i++){
+    a += (rnd() - .5) * 1.9; x += Math.cos(a) * 9; y += Math.sin(a) * 9;
+    if (x < 20 || x > 180) { a = Math.PI - a; x = Math.max(20, Math.min(180, x)); }
+    if (y < 14 || y > 106) { a = -a; y = Math.max(14, Math.min(106, y)); }
+    pts.push(x.toFixed(1) + "," + y.toFixed(1));
+  }
+  const [fx, fy] = pts[0].split(","), [lx, ly] = pts.at(-1).split(",");
+  return `<svg viewBox="0 0 200 120" aria-hidden="true"><polyline points="${pts.join(" ")}" fill="none" stroke="#fff" stroke-width="4.5" stroke-linecap="round" stroke-linejoin="round"/><circle cx="${fx}" cy="${fy}" r="5.5" fill="#fff"/><circle cx="${lx}" cy="${ly}" r="5.5" fill="#000"/></svg>`;
+}
+const isOn = t => /running|up next/i.test(t.status);
+document.getElementById("target-grid").innerHTML = FOLD.targets.map((t, i) => `
+  <article class="t-card">
+    <header><h3>${t.name}</h3><span class="t-status${isOn(t) ? " on" : ""}">${t.status}</span></header>
+    <div class="t-thumb" style="background:${t.color || "var(--lavender)"}">${miniChain(i * 977 + 31)}</div>
+    <p>${t.why}</p>
+  </article>`).join("");
+const cur = FOLD.targets.find(isOn) || FOLD.targets[0];
+document.getElementById("cur-target").textContent = cur ? cur.name : "—";
+
+/* ---- DNA helix -> zoom -> protein built bead by bead -> folds ---- */
+function mountFold(svg, opts = {}){
+  const o = Object.assign({ strand:"#fff", ribo:"rgba(255,255,255,.6)", state:null }, opts);
+  const NS = "http://www.w3.org/2000/svg";
+  const el = (n, a = {}) => { const e = document.createElementNS(NS, n); for (const k in a) e.setAttribute(k, a[k]); return e; };
+  const gD = el("g"), gP = el("g"); svg.append(gD, gP);
+  const CX = 260, CY = 210;
+  const ease = x => x < .5 ? 4 * x * x * x : 1 - Math.pow(-2 * x + 2, 3) / 2;
+  const clamp = x => Math.max(0, Math.min(1, x));
+  let P = 0; const seg = (a, b) => clamp((P - a) / (b - a));
+
+  const M = 56, bases = ["#7F8EF0", "#3FC18F", "#F2B23A", "#E4544C"];
+  const rungs = [], sA = [], sB = [];
+  for (let i = 0; i < M; i += 2){
+    const c = (i * 7 + (i >> 2)) % 4;
+    const r1 = el("line", { "stroke-width": 4, stroke: bases[c], "stroke-linecap": "round" });
+    const r2 = el("line", { "stroke-width": 4, stroke: bases[3 - c], "stroke-linecap": "round" });
+    gD.append(r1, r2); rungs.push([i, r1, r2]);
+  }
+  for (let i = 0; i < M - 1; i++){
+    const a = el("line", { "stroke-linecap": "round", stroke: o.strand }), b = el("line", { "stroke-linecap": "round", stroke: o.strand });
+    gD.append(a, b); sA.push(a); sB.push(b);
+  }
+  function drawDNA(ts){
+    const ph = ts / 900, xs = [], A = [], B = [];
+    for (let i = 0; i < M; i++){
+      const x = 10 + i * (500 / (M - 1)), ang = i * .42 + ph;
+      xs.push(x); A.push([210 + 70 * Math.sin(ang), Math.cos(ang)]); B.push([210 - 70 * Math.sin(ang), -Math.cos(ang)]);
+    }
+    const set = (l, x1, y1, x2, y2, z) => {
+      l.setAttribute("x1", x1); l.setAttribute("y1", y1); l.setAttribute("x2", x2); l.setAttribute("y2", y2);
+      l.setAttribute("stroke-width", 3 + 3 * (z + 1) / 2); l.style.opacity = .25 + .75 * (z + 1) / 2;
+    };
+    for (let i = 0; i < M - 1; i++){
+      set(sA[i], xs[i], A[i][0], xs[i+1], A[i+1][0], A[i][1]);
+      set(sB[i], xs[i], B[i][0], xs[i+1], B[i+1][0], B[i][1]);
+    }
+    for (const [i, r1, r2] of rungs){
+      const mid = (A[i][0] + B[i][0]) / 2;
+      for (const [r, y] of [[r1, A[i][0]], [r2, B[i][0]]]){
+        r.setAttribute("x1", xs[i]); r.setAttribute("x2", xs[i]); r.setAttribute("y1", y); r.setAttribute("y2", mid);
+        r.style.opacity = .3 + .6 * Math.abs(Math.sin(i * .42 + ph));
+      }
+    }
+  }
+
+  const N = 64, open = [], folded = [], per = N / 4;
+  for (let i = 0; i < N; i++){
+    const u = i / (N - 1);
+    open.push([30 + u * 460, 210 + Math.sin(u * 9) * 55 + Math.sin(u * 23) * 15]);
+    const col = Math.floor(i / per), k = i % per;
+    folded.push([170 + col * 58 + Math.sin(k * 1.7) * 16, col % 2 ? 125 + k * (170 / per) : 295 - k * (170 / per)]);
+  }
+  const segs = [];
+  for (let i = 0; i < N - 1; i++){
+    const l = el("line", { stroke: `hsl(${230 - (i / (N - 2)) * 225} 75% 60%)`, "stroke-width": 7, "stroke-linecap": "round" });
+    gP.append(l); segs.push(l);
+  }
+  const head = el("circle", { r: 7, fill: "hsl(230 75% 60%)" }), tail = el("circle", { r: 7, fill: "hsl(5 75% 60%)" });
+  const ribo = el("circle", { r: 16, fill: "none", "stroke-width": 3, "stroke-dasharray": "4 5", stroke: o.ribo });
+  gP.append(head, tail, ribo);
+
+  function drawProtein(ts, built, f, still){
+    const jitter = still ? 0 : (1 - f * .7) * 3;
+    const pts = open.map((p, i) => [
+      p[0] + (folded[i][0] - p[0]) * f + Math.sin(ts / 300 + i) * jitter,
+      p[1] + (folded[i][1] - p[1]) * f + Math.cos(ts / 340 + i * 1.3) * jitter]);
+    const shown = built * (N - 1);
+    segs.forEach((l, i) => {
+      l.setAttribute("x1", pts[i][0]); l.setAttribute("y1", pts[i][1]);
+      l.setAttribute("x2", pts[i+1][0]); l.setAttribute("y2", pts[i+1][1]);
+      l.style.opacity = clamp(shown - i);
+    });
+    head.setAttribute("cx", pts[0][0]); head.setAttribute("cy", pts[0][1]);
+    tail.setAttribute("cx", pts[N-1][0]); tail.setAttribute("cy", pts[N-1][1]);
+    tail.style.opacity = built >= 1 ? 1 : 0;
+    const tip = pts[Math.min(N - 1, Math.floor(shown))];
+    ribo.setAttribute("cx", tip[0]); ribo.setAttribute("cy", tip[1]);
+    ribo.style.opacity = built > 0 && built < 1 ? .9 : 0;
+  }
+
+  if (matchMedia("(prefers-reduced-motion: reduce)").matches){
+    gD.style.opacity = 0; drawProtein(0, 1, 1, true); if (o.state) o.state.textContent = "Folded"; return;
+  }
+  const CYCLE = 14000;
+  function frame(ts){
+    P = (ts % CYCLE) / CYCLE;
+    const zoom = 1 + 7 * ease(seg(.22, .36));
+    gD.setAttribute("transform", `translate(${CX} ${CY}) scale(${zoom}) translate(${-CX} ${-CY})`);
+    const dOp = P < .9 ? 1 - seg(.27, .36) : seg(.9, 1);
+    gD.style.opacity = dOp;
+    gP.style.opacity = P < .32 ? 0 : 1 - seg(.88, .95);
+    if (P >= .3 && P < .96) drawProtein(ts, seg(.32, .48), ease(seg(.48, .72)), false);
+    if (dOp > 0) drawDNA(ts);
+    if (o.state) o.state.textContent = P < .22 || P >= .95 ? "Reading the DNA" : P < .32 ? "Zooming in" :
+      P < .48 ? "Building the protein" : P < .72 ? "Folding" : "Folded";
+    requestAnimationFrame(frame);
+  }
+  requestAnimationFrame(frame);
+}
+mountFold(document.getElementById("fold-bg"));
+mountFold(document.getElementById("fold-pill"), { state: document.getElementById("fold-state") });
+</script>
+</body>
+</html>
